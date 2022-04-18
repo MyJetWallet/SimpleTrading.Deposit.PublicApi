@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <Version>3.0.34</Version>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="DotNetCoreDecorators" Version="1.0.21" />
+      <PackageReference Include="Finance.CardValidator" Version="1.0.0" />
+      <PackageReference Include="Finance.DirectaIntegration.GrpcContracts" Version="1.0.1" />
+      <PackageReference Include="Finance.DirectaPublic.HttpContracts" Version="1.0.0" />
+      <PackageReference Include="Finance.PayopIntegration.GrpcContracts" Version="1.0.0" />
+      <PackageReference Include="Finance.PayRetailersIntegration.GrpcContracts" Version="1.1.3" />
+      <PackageReference Include="Finance.PciDssIntegration.GrpcContracts" Version="1.0.23" />
+      <PackageReference Include="Finance.PciDssPublic.HttpContracts" Version="1.0.0" />
+      <PackageReference Include="Finance.SwiffyIntegration.GrpcContracts" Version="1.0.0" />
+      <PackageReference Include="Finance.SwiffyPublic.HttpContracts" Version="1.0.0" />
+      <PackageReference Include="Finance.VoltIntegration.GrpcContracts" Version="1.0.0" />
+      <PackageReference Include="FluentValidation" Version="9.0.1" />
+      <PackageReference Include="FluentValidation.AspNetCore" Version="9.0.1" />
+      <PackageReference Include="Grpc.Net.Client" Version="2.35.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.6" />
+      <PackageReference Include="MyCrm.AuditLog.Grpc" Version="1.0.4" />
+      <PackageReference Include="MyDependencies" Version="1.0.1" />
+      <PackageReference Include="MySettingsReader" Version="1.2.1" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+      <PackageReference Include="protobuf-net" Version="3.0.101" />
+      <PackageReference Include="protobuf-net.Grpc" Version="1.0.147" />
+      <PackageReference Include="Serilog" Version="2.10.0" />
+      <PackageReference Include="Serilog.Sinks.Seq" Version="4.0.0" />
+      <PackageReference Include="SimpleTrading.Common" Version="1.0.32" />
+      <PackageReference Include="SimpleTrading.Common.MyNoSql" Version="1.0.38" />
+      <PackageReference Include="SimpleTrading.ConvertService.Grpc" Version="1.0.3" />
+      <PackageReference Include="SimpleTrading.Deposit.Grpc" Version="1.2.18" />
+      <PackageReference Include="SimpleTrading.Deposit.Postgresql" Version="1.0.15" />
+      <PackageReference Include="SimpleTrading.GrpcTemplate" Version="1.0.4" />
+      <PackageReference Include="SimpleTrading.MyLogger" Version="1.0.10" />
+      <PackageReference Include="SimpleTrading.Payments.Abstractions" Version="1.0.2" />
+      <PackageReference Include="SimpleTrading.PersonalData.Grpc" Version="1.0.50" />
+      <PackageReference Include="SimpleTrading.ServiceStatusReporterConnector" Version="1.0.9" />
+      <PackageReference Include="SimpleTrading.TokensManager" Version="1.3.2" />
+      <PackageReference Include="NSwag.AspNetCore" Version="13.7.0" />
+      <PackageReference Include="SimpleTrading.TraderExternalData.Grpc" Version="1.0.8" />
+      <PackageReference Include="SimpleTrading.Utm.Postgres" Version="1.0.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SimpleTrading.Deposit.PublicApi.Abstractions\SimpleTrading.Deposit.PublicApi.Abstractions.csproj" />
+    </ItemGroup>
+</Project>
