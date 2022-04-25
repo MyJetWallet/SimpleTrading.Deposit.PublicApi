@@ -15,7 +15,6 @@
       <PackageReference Include="Finance.PciDssPublic.HttpContracts" Version="1.0.0" />
       <PackageReference Include="Finance.SwiffyIntegration.GrpcContracts" Version="1.0.0" />
       <PackageReference Include="Finance.SwiffyPublic.HttpContracts" Version="1.0.0" />
-      <PackageReference Include="Finance.VoltIntegration.GrpcContracts" Version="1.0.0" />
       <PackageReference Include="FluentValidation" Version="10.4.0" />
       <PackageReference Include="FluentValidation.AspNetCore" Version="10.4.0" />
       <PackageReference Include="Grpc.Net.Client" Version="2.45.0" />
@@ -25,7 +24,7 @@
       <PackageReference Include="MyDependencies" Version="1.0.1" />
       <PackageReference Include="MySettingsReader" Version="1.2.2" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-      <PackageReference Include="protobuf-net" Version="3.1.0" />
+      <PackageReference Include="protobuf-net" Version="3.0.131" />
       <PackageReference Include="protobuf-net.Grpc" Version="1.0.152" />
       <PackageReference Include="Serilog" Version="2.11.0" />
       <PackageReference Include="Serilog.Sinks.Seq" Version="5.1.1" />

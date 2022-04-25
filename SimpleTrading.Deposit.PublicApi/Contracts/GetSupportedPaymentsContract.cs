@@ -62,7 +62,6 @@ namespace SimpleTrading.Deposit.PublicApi.Contracts
         Bitcoin,
         Swiffy,
         Directa,
-        Volt,
         PayRetailers,
         Payop
     }

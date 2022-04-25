@@ -5,6 +5,7 @@
 *.user
 **/*.min.css
 **/*.js.css
+Cert
 
 **/bin
 **/obj

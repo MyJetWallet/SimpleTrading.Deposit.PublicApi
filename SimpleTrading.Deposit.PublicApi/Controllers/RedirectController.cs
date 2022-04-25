@@ -204,56 +204,6 @@ namespace SimpleTrading.Deposit.PublicApi.Controllers
             return Redirect(redirectUrl);
         }
 
-        [HttpGet("volt")]
-        public async Task<IActionResult> VoltRedirect([FromQuery(Name = "orderId")] string orderId,
-            [FromQuery(Name = "invoiceId")] string invoiceId, [FromQuery(Name = "status")] string status,
-            [FromQuery(Name = "txid")] string txid, [FromQuery] string activityId)
-        {
-            using var currentActivity = string.IsNullOrEmpty(activityId)
-                ? Activity.Current
-                : new Activity("redirect").SetParentId(activityId).Start();
-            ServiceLocator.Logger.Information(
-                "VoltRedirect orderId {orderId}, invoiceId {invoiceId}, status {status}, txid {txid}, activityId {activityId}",
-                orderId,
-                invoiceId, status, txid, activityId);
-            var targetTransaction = await GetTransactionByOrderIdAsync(orderId, 5);
-
-            if (targetTransaction == null)
-            {
-                if (!HttpContext.TryGetDepositBrandByRequest(out var depositBrand))
-                    throw new Exception("Brand not found");
-                var defaultRedirectUrl = depositBrand.GetStRedirectUrl();
-                ServiceLocator.Logger.Information(
-                    "Transaction is null. {paymentSystem} Request redirect to {redirectLink}", "volt",
-                    defaultRedirectUrl);
-                return Redirect(defaultRedirectUrl);
-            }
-
-            var redirectUrl = targetTransaction.GetRedirectUrl();
-            if (targetTransaction.Status == PaymentInvoiceStatusEnum.Approved)
-                redirectUrl = redirectUrl.SetQueryParam("status", "success");
-            else if (targetTransaction.Status == PaymentInvoiceStatusEnum.Registered)
-                redirectUrl = redirectUrl.SetQueryParam("status", "pending");
-            else
-                redirectUrl = redirectUrl.SetQueryParam("status", "failed");
-
-            await ServiceLocator.AuditLogGrpcService.SaveAsync(new AuditLogEventGrpcModel
-            {
-                TraderId = targetTransaction.TraderId,
-                ActionId = targetTransaction.Id,
-                Action = "deposit",
-                DateTime = DateTime.UtcNow,
-                Message =
-                    $"volt redirected client on redirect service. Redirection on {redirectUrl} cause status: {targetTransaction.Status}",
-                Author = "system"
-            });
-            ServiceLocator.Logger.Information(
-                "{paymentSystem} redirected client on redirect service. Redirection on {redirectUrl} cause status: {status}",
-                "volt", redirectUrl, targetTransaction.Status);
-
-            return Redirect(redirectUrl);
-        }
-
         [HttpGet("realdeposits")]
         public async Task<IActionResult> RealdepositsRedirect([FromQuery(Name = "orderId")] string orderId,
             [FromQuery] string activityId)

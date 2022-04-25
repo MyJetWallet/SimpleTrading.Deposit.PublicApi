@@ -101,9 +101,6 @@ namespace SimpleTrading.Deposit.PublicApi
         [YamlProperty("DepositManagerWebView.FinanceDirectaIntegrationService")]
         public string FinanceDirectaIntegrationService { get; set; }
 
-        [YamlProperty("DepositManagerWebView.FinanceVoltIntegrationService")]
-        public string FinanceVoltIntegrationService { get; set; }
-
         [YamlProperty("DepositManagerWebView.FinancePayRetailersIntegrationService")]
         public string FinancePayRetailersIntegrationService { get; set; }
 

@@ -14,7 +14,6 @@ using Finance.PciDssIntegration.GrpcContracts.Contracts;
 using Finance.PciDssPublic.HttpContracts.Requests;
 using Finance.SwiffyIntegration.GrpcContracts.Contracts;
 using Finance.SwiffyPublic.HttpContracts.Requests;
-using Finance.VoltIntegration.GrpcContracts.Contracts;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using SimpleTrading.Common.Helpers;
@@ -330,22 +329,6 @@ namespace SimpleTrading.Deposit.PublicApi
                 Phone = pd.PersonalData.Phone,
                 Street = pd.PersonalData.Address,
                 Zipcode = pd.PersonalData.PostalCode
-            };
-        }
-
-        public static MakeVoltDepositGrpcRequest ToMakeVoltDepositGrpcRequest(
-            this CreateVoltInvoiceRequest request, PersonalDataGrpcResponseContract pd, string brand)
-        {
-            return new()
-            {
-                AccountId = request.AccountId,
-                Amount = request.Amount,
-                Brand = brand,
-                Currency = "USD",
-                TraderId = pd.PersonalData.Id,
-                Email = pd.PersonalData.Email,
-                FullName = string.Join(' ', pd.PersonalData.FirstName, pd.PersonalData.LastName),
-                PhoneNumber = pd.PersonalData.Phone
             };
         }
 
