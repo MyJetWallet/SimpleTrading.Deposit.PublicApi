@@ -312,41 +312,6 @@ namespace SimpleTrading.Deposit.PublicApi.Controllers
             return targetTransaction;
         }
 
-        [HttpGet("swiffy")]
-        public async Task<IActionResult> SwiffyRedirect([FromQuery] SwiffyRedirectRequest request)
-        {
-            using var currentActivity = string.IsNullOrEmpty(request.ActivityId)
-                ? Activity.Current
-                : new Activity("redirect").SetParentId(request.ActivityId).Start();
-            ServiceLocator.Logger.Information("swiffy redirect Request {@request}", request);
-            var targetTransaction = await GetTransactionByOrderIdAsync(request.MerchantReference);
-            if (targetTransaction == null)
-            {
-                if (!HttpContext.TryGetDepositBrandByRequest(out var depositBrand))
-                    throw new Exception("Brand not found");
-                var defaultRedirectUrl = depositBrand.GetStRedirectUrl();
-                ServiceLocator.Logger.Information(
-                    "Transaction is null. {paymentSystem} Request redirect to {redirectLink}", "swiffy",
-                    defaultRedirectUrl);
-                return Redirect(defaultRedirectUrl);
-            }
-
-            var baseRedirectUrl = targetTransaction.GetRedirectUrl();
-            var redirectUrl = baseRedirectUrl.SetQueryParam("status", targetTransaction.Status == PaymentInvoiceStatusEnum.Approved ? "success" : "failed");
-            await ServiceLocator.AuditLogGrpcService.SaveAsync(new AuditLogEventGrpcModel
-            {
-                TraderId = targetTransaction.TraderId,
-                ActionId = targetTransaction.Id,
-                Action = "deposit",
-                DateTime = DateTime.UtcNow,
-                Message = $"swiffy redirected client on redirect service. Redirection on {redirectUrl} cause status: {targetTransaction.Status}",
-                Author = "system"
-            });
-            ServiceLocator.Logger.Information("{paymentSystem} 3ds redirected client on redirect service. Redirection on {redirectUrl} cause status: {status}", "swiffy", redirectUrl, targetTransaction.Status);
-
-            return Redirect(redirectUrl);
-        }
-
         [HttpGet("directa")]
         public async Task<IActionResult> DirectaRedirect([FromQuery] DirectaRedirectRequest request)
         {

@@ -1,4 +1,3 @@
-using Finance.SwiffyIntegration.GrpcContracts.Contracts;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using SimpleTrading.Deposit.PublicApi.Services;
@@ -16,7 +15,6 @@ namespace SimpleTrading.Deposit.PublicApi
         private Timer _timer;
         private SettingsModel SettingsModel => ServiceLocator.Settings;
         private ILogger Logger => ServiceLocator.Logger;
-        private IProcessIdService<MakeSwiffyDepositGrpcResponse> MakeSwiffyDepositProcessIdService => ServiceLocator.MakeSwiffyDepositProcessIdService;
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _timer = TimerFactory();
@@ -41,7 +39,6 @@ namespace SimpleTrading.Deposit.PublicApi
             try
             {
                 Logger.Information("ProcessIdCleanerJob start clear");
-                MakeSwiffyDepositProcessIdService.Clear();
             }
             finally
             {

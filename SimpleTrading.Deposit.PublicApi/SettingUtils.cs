@@ -107,7 +107,6 @@ namespace SimpleTrading.Deposit.PublicApi
             {
                 "BANK_CARDS" => PaymentSystemType.BankCards,
                 "BITCOIN" => PaymentSystemType.Bitcoin,
-                "SWIFFY" => PaymentSystemType.Swiffy,
                 "WIRETRANSFER" => PaymentSystemType.Wiretransfer,
                 "DIRECTA" => PaymentSystemType.Directa,
                 "PAYRETAILERS" => PaymentSystemType.PayRetailers,
@@ -134,7 +133,6 @@ namespace SimpleTrading.Deposit.PublicApi
             {
                 "BANK_CARDS" => PaymentSystemType.BankCards,
                 "BITCOIN" => PaymentSystemType.Bitcoin,
-                "SWIFFY" => PaymentSystemType.Swiffy,
                 "WIRETRANSFER" => PaymentSystemType.Wiretransfer,
                 "DIRECTA" => PaymentSystemType.Directa,
                 "PAYRETAILERS" => PaymentSystemType.PayRetailers,
@@ -148,7 +146,6 @@ namespace SimpleTrading.Deposit.PublicApi
             {
                 "BANK_CARDS" => PaymentSystemType.BankCards,
                 "BITCOIN" => PaymentSystemType.Bitcoin,
-                "SWIFFY" => PaymentSystemType.Swiffy,
                 "WIRETRANSFER" => PaymentSystemType.Wiretransfer,
                 "DIRECTA" => PaymentSystemType.Directa,
                 "PAYOP_LATAM" => PaymentSystemType.Payop,

@@ -7,8 +7,6 @@ using Finance.PayopIntegration.GrpcContracts.Contracts;
 using Finance.PayRetailersIntegration.GrpcContracts;
 using Finance.PayRetailersIntegration.GrpcContracts.Contracts;
 using Finance.PciDssIntegration.GrpcContracts;
-using Finance.SwiffyIntegration.GrpcContracts;
-using Finance.SwiffyIntegration.GrpcContracts.Contracts;
 using MyCrm.AuditLog.Grpc;
 using MyDependencies;
 using MySettingsReader;
@@ -38,11 +36,8 @@ namespace SimpleTrading.Deposit.PublicApi
         public static IMyCrmAuditLogGrpcService AuditLogGrpcService { get; private set; }
         public static IFinancePciDssIntegrationGrpcService FinancePciDssIntegrationGrpcService { get; private set; }
         public static IConvertService ConvertService { get; private set; }
-        public static IFinanceSwiffyIntegrationGrpcService FinanceSwiffyIntegrationGrpcService { get; private set; }
         public static IFinanceDirectaIntegrationGrpcService FinanceDirectaIntegrationGrpcService { get; private set; }
         public static ILogger Logger { get; private set; }
-        public static IProcessIdService<MakeSwiffyDepositGrpcResponse> MakeSwiffyDepositProcessIdService { get; private set; }
-
         public static IProcessIdService<MakeDirectaDepositGrpcResponse> MakeDirectaDepositProcessIdService
         {
             get;
@@ -70,12 +65,10 @@ namespace SimpleTrading.Deposit.PublicApi
             AuditLogGrpcService = sr.GetService<IMyCrmAuditLogGrpcService>();
             FinancePciDssIntegrationGrpcService = sr.GetService<IFinancePciDssIntegrationGrpcService>();
             ConvertService = sr.GetService<IConvertService>();
-            FinanceSwiffyIntegrationGrpcService = sr.GetService<IFinanceSwiffyIntegrationGrpcService>();
             FinanceDirectaIntegrationGrpcService = sr.GetService<IFinanceDirectaIntegrationGrpcService>();
             FinancePayRetailersIntegrationGrpcService = sr.GetService<IFinancePayRetailersIntegrationGrpcService>();
             FinancePayopIntegrationGrpcService = sr.GetService<IFinancePayopIntegrationGrpcService>();
             Logger = sr.GetService<MyLogger.MyLogger>();
-            MakeSwiffyDepositProcessIdService = sr.GetService<IProcessIdService<MakeSwiffyDepositGrpcResponse>>();
             MakeDirectaDepositProcessIdService = sr.GetService<IProcessIdService<MakeDirectaDepositGrpcResponse>>();
             MakePayRetailersDepositProcessIdService = sr.GetService<IProcessIdService<MakePayRetailersDepositGrpcResponse>>();
             MakePayopDepositProcessIdService = sr.GetService<IProcessIdService<MakePayopDepositGrpcResponse>>();

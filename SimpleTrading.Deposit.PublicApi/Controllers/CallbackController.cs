@@ -262,36 +262,6 @@ namespace SimpleTrading.Deposit.PublicApi.Controllers
             return Ok("success");
         }
 
-        [HttpPost("swiffy")]
-        [SwaggerResponse(HttpStatusCode.OK, typeof(string))]
-        public async Task<IActionResult> HandleSwiffyCallback([FromForm] SwiffyCallback request,
-            [FromQuery] string activityId)
-        {
-            using var currentActivity = string.IsNullOrEmpty(activityId)
-                ? Activity.Current
-                : new Activity("redirect").SetParentId(activityId).Start();
-            ServiceLocator.Logger.Information(
-                "Got Swiffy callback. Callback status: {status}. Transaction Id: {trId}. callback {@callback}",
-                request.Status, request.CallpayTransactionId, request);
-
-            //TODO Go to swiffy and get transaction
-
-            var pendingInvoice = await ServiceLocator.DepositRepository.FindById(request.MerchantReference);
-
-            await ServiceLocator.AuditLogGrpcService.SaveAsync(new AuditLogEventGrpcModel
-            {
-                TraderId = pendingInvoice.TraderId,
-                Action = "deposit",
-                ActionId = pendingInvoice.Id,
-                DateTime = DateTime.UtcNow,
-                Message =
-                    $"Got callback. Ps status: ${request.Status}. Ps message: {request.Reason}.",
-                Author = "system"
-            });
-
-            await ServiceLocator.DepositManagerGrpcService.ProcessDepositAsync(request.ToGrpcCallbackRequest(pendingInvoice));
-            return Ok("success");
-        }
 
         [HttpPost("directa")]
         [SwaggerResponse(HttpStatusCode.OK, typeof(string))]

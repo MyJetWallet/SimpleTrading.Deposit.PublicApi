@@ -12,9 +12,6 @@ using Finance.PayRetailersIntegration.GrpcContracts.Contracts;
 using Finance.PciDssIntegration.GrpcContracts.Contracts;
 using Finance.PciDssPublic.HttpContracts.Requests;
 using Finance.PciDssPublic.HttpContracts.Responses;
-using Finance.SwiffyIntegration.GrpcContracts.Contracts;
-using Finance.SwiffyPublic.HttpContracts.Requests;
-using Finance.SwiffyPublic.HttpContracts.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using NSwag.Annotations;
@@ -271,86 +268,6 @@ namespace SimpleTrading.Deposit.PublicApi.Controllers
             }
 
             return Ok(DepositResponse<GetSupportedPaymentSystemsResponse>.Success(response));
-        }
-
-        [HttpPost("swiffy/invoice")]
-        [SwaggerResponse(HttpStatusCode.OK, typeof(DepositResponse<CreateSwiffyInvoiceResponse>))]
-        [SwaggerResponse(HttpStatusCode.BadRequest, typeof(DepositResponse<CreateSwiffyInvoiceBadResponse>))]
-        [SwaggerResponse(HttpStatusCode.Unauthorized, typeof(string))]
-        public async Task<IActionResult> CreateSwiffyInvoice([FromBody] CreateSwiffyInvoiceRequest request)
-        {
-            ServiceLocator.Logger.Information("Process CreateSwiffyInvoice for request {@request} with headers {@headers}", request, HttpContext.Request.Headers);
-            var validationResult = request.Validate();
-            if (!validationResult.IsValid)
-            {
-                var errors =
-                    validationResult.Errors.Select(item => ErrorEntity.Create(item.PropertyName, item.ErrorMessage));
-                ServiceLocator.Logger.Information("Validation failed with error {@error}", errors);
-                return Ok(DepositResponse<CreateSwiffyInvoiceBadResponse>.Create(
-                    CreateSwiffyInvoiceBadResponse.Create(errors), DepositRequestStatus.ServerError));
-            }
-
-            if (!request.AccountId.Contains("stl") && !request.AccountId.Contains("mtl"))
-            {
-                ServiceLocator.Logger.Information("Account {account} is not stl or mtl", request.AccountId);
-                return Ok(DepositResponse<CreateSwiffyInvoiceResponse>.Create(CreateSwiffyInvoiceResponse.Empty, DepositRequestStatus.ServerError));
-            }
-
-            if (!HttpContext.TryGetTraderId(out var traderId))
-            {
-                ServiceLocator.Logger.Information("TraderId was not found for request {@request}", request);
-                return Unauthorized("Unauthorized");
-            }
-
-            PersonalDataGrpcResponseContract pd = await ServiceLocator.PersonalDataServiceGrpc.GetByIdAsync(traderId);
-
-            var ip = HttpContext.GetIp();
-            if (!HttpContext.TryGetDepositBrandByRequest(out var depositBrand))
-                depositBrand = Enum.Parse<BrandName>(pd.PersonalData.BrandId, true);
-
-            if (depositBrand is null)
-            {
-                ServiceLocator.Logger.Error("Brand is null");
-                return Ok(DepositResponse<CreateSwiffyInvoiceResponse>.Create(CreateSwiffyInvoiceResponse.Empty,
-                    DepositRequestStatus.ServerError));
-            }
-
-            ServiceLocator.Logger.Information("Using {brand} brand", depositBrand.ToString());
-
-            try
-            {
-                DepositResponse<CreateSwiffyInvoiceResponse> response = null;
-                var paymentSystem = await ServiceLocator.DepositManagerGrpcService.GetPaymentSystemsAsync(GetPaymentSystemsRequest.Create(traderId, depositBrand.ToString(), pd.PersonalData.GetCountry()));
-                if (paymentSystem.PaymentSystems?.Any(x => x.PaymentSystemId.Contains("swiffy", StringComparison.OrdinalIgnoreCase)) == true)
-                {
-                    var swiffyDepositGrpcResponse = await ServiceLocator.MakeSwiffyDepositProcessIdService
-                        .GetOrCreateAsync(request.ProcessId + traderId,
-                            () => ServiceLocator.FinanceSwiffyIntegrationGrpcService.MakeDepositAsync(
-                                request.ToMakeSwiffyDepositGrpcRequest(pd, depositBrand.ToString())));
-
-                    if (swiffyDepositGrpcResponse.Status == SwiffyDepositRequestStatus.Success)
-                    {
-                        response = DepositResponse<CreateSwiffyInvoiceResponse>.Success(CreateSwiffyInvoiceResponse.Create(swiffyDepositGrpcResponse.RedirectUrl));
-                    }
-                    else
-                    {
-                        response = DepositResponse<CreateSwiffyInvoiceResponse>.Create(CreateSwiffyInvoiceResponse.Empty, DepositRequestStatus.ServerError);
-                    }
-
-                }
-                else
-                {
-                    ServiceLocator.Logger.Warning("CreateSwiffyInvoice. paymentSystem not supported {@paymentSystem}", paymentSystem);
-                    response = DepositResponse<CreateSwiffyInvoiceResponse>.Create(CreateSwiffyInvoiceResponse.Empty, DepositRequestStatus.ServerError);
-                }
-                ServiceLocator.Logger.Information("CreateSwiffyInvoice. Return response {@response}", response);
-                return Ok(response);
-            }
-            catch (Exception e)
-            {
-                ServiceLocator.Logger.Error(e, e.Message);
-                return Ok(DepositResponse<CreateSwiffyInvoiceResponse>.Create(CreateSwiffyInvoiceResponse.Empty, DepositRequestStatus.ServerError));
-            }
         }
 
         [HttpPost("directa/invoice")]

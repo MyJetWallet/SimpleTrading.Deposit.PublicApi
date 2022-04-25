@@ -12,8 +12,6 @@ using Finance.PayopIntegration.GrpcContracts.Contracts;
 using Finance.PayRetailersIntegration.GrpcContracts.Contracts;
 using Finance.PciDssIntegration.GrpcContracts.Contracts;
 using Finance.PciDssPublic.HttpContracts.Requests;
-using Finance.SwiffyIntegration.GrpcContracts.Contracts;
-using Finance.SwiffyPublic.HttpContracts.Requests;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using SimpleTrading.Common.Helpers;
@@ -137,20 +135,6 @@ namespace SimpleTrading.Deposit.PublicApi
                 Comment = "Handled callback on deposit rest service",
                 Author = "System",
                 PaymentInvoiceStatus = model.TransactionStatus.Equals("approved", StringComparison.OrdinalIgnoreCase)
-                    ? PaymentInvoiceStatusEnum.Approved
-                    : PaymentInvoiceStatusEnum.Failed
-            };
-        }
-
-        public static ProcessDepositRequest ToGrpcCallbackRequest(this SwiffyCallback model, DepositModel pendingInvoice)
-        {
-            return new ProcessDepositRequest
-            {
-                TransactionId = pendingInvoice.Id,
-                PsTransactionId = string.IsNullOrEmpty(pendingInvoice.PsTransactionId) ? model.CallpayTransactionId : pendingInvoice.PsTransactionId,
-                Comment = "Handled callback on deposit rest service",
-                Author = "System",
-                PaymentInvoiceStatus = model.IsSuccess
                     ? PaymentInvoiceStatusEnum.Approved
                     : PaymentInvoiceStatusEnum.Failed
             };
@@ -293,20 +277,6 @@ namespace SimpleTrading.Deposit.PublicApi
                 return sourceAffiliate;
 
             return string.Empty;
-        }
-
-        public static MakeSwiffyDepositGrpcRequest ToMakeSwiffyDepositGrpcRequest(this CreateSwiffyInvoiceRequest request, PersonalDataGrpcResponseContract pd, string brand)
-        {
-            return new MakeSwiffyDepositGrpcRequest
-            {
-                AccountId = request.AccountId,
-                Country = pd.PersonalData.GetCountry(),
-                Amount = request.Amount,
-                Brand = brand,
-                Currency = "USD",
-                ProcessId = request.ProcessId,
-                TraderId = pd.PersonalData.Id
-            };
         }
 
         public static MakeDirectaDepositGrpcRequest ToMakeDirectaDepositGrpcRequest(

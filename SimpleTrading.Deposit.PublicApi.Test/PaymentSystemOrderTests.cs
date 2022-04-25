@@ -27,7 +27,6 @@ namespace SimpleTrading.Deposit.PublicApi.Test
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Bitcoin));
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.PayRetailers));
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.BankCards));
-            paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Swiffy));
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Wiretransfer));
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Payop));
             paymentSystems.Sort(PaymentSystem.SortBitcoinLast);
@@ -43,7 +42,6 @@ namespace SimpleTrading.Deposit.PublicApi.Test
             var paymentSystems = new List<PaymentSystem>();
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.PayRetailers));
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.BankCards));
-            paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Swiffy));
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Payop));
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Wiretransfer));
             paymentSystems.Sort(PaymentSystem.SortBitcoinLast);
@@ -58,7 +56,6 @@ namespace SimpleTrading.Deposit.PublicApi.Test
             var paymentSystems = new List<PaymentSystem>();
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Bitcoin));
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.PayRetailers));
-            paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Swiffy));
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Wiretransfer));
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Payop));
             paymentSystems.Sort(PaymentSystem.SortBitcoinLast);
@@ -72,7 +69,6 @@ namespace SimpleTrading.Deposit.PublicApi.Test
         {
             var paymentSystems = new List<PaymentSystem>();
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.PayRetailers));
-            paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Swiffy));
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Wiretransfer));
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Payop));
             paymentSystems.Sort(PaymentSystem.SortBitcoinLast);
