@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Finance.DirectaIntegration.GrpcContracts.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using MyCrm.AuditLog.Grpc.Models;
 using NSwag.Annotations;
@@ -262,63 +261,6 @@ namespace SimpleTrading.Deposit.PublicApi.Controllers
             return Ok("success");
         }
 
-
-        [HttpPost("directa")]
-        [SwaggerResponse(HttpStatusCode.OK, typeof(string))]
-        public async Task<IActionResult> HandleDirectaCallback([FromBody] DirectaCallback request,
-            [FromQuery] string activity)
-        {
-            using var currentActivity = new Activity("callback").SetParentId(activity).Start();
-            ServiceLocator.Logger.Information(
-                "Got directa callback. callback {@callback}. ActivityId {activity}", request, activity);
-
-            var pendingInvoices =
-                await ServiceLocator.DepositRepository.FindByPsId(request.PsTransactionId);
-
-            var pendingInvoice = pendingInvoices.FirstOrDefault(x =>
-                x.PaymentSystem.Contains("directa", StringComparison.OrdinalIgnoreCase));
-
-            if (pendingInvoice is null)
-            {
-                ServiceLocator.Logger.Error("Directa invoice is null. PsTransactionId {PsTransactionId}",
-                    request.PsTransactionId);
-                return new NotFoundResult();
-            }
-
-            var deposit = await ServiceLocator.FinanceDirectaIntegrationGrpcService.GetDepositAsync(
-                new GetDirectaDepositGrpcRequest
-                {
-                    PsTransactionId = request.PsTransactionId,
-                    Brand = pendingInvoice.Brand.ToString()
-                });
-            if (deposit.RequestStatus != DirectaDepositRequestStatus.Success)
-            {
-                ServiceLocator.Logger.Error("Directa get deposit failed. deposit {@deposit}", deposit);
-                return new BadRequestResult();
-            }
-
-            await ServiceLocator.AuditLogGrpcService.SaveAsync(new AuditLogEventGrpcModel
-            {
-                TraderId = pendingInvoice.TraderId,
-                Action = "deposit",
-                ActionId = pendingInvoice.Id,
-                DateTime = DateTime.UtcNow,
-                Message =
-                    $"Got callback. Ps status: ${deposit.Deposit.Status}. Ps message: {deposit.ErrorMessage}.",
-                Author = "system"
-            });
-
-            if (deposit.Deposit.IsPending())
-            {
-                ServiceLocator.Logger.Information(
-                    "Directa return Ok result. deposit has status pending. deposit {@deposit}", deposit);
-                return Ok();
-            }
-
-            await ServiceLocator.DepositManagerGrpcService.ProcessDepositAsync(
-                deposit.ToGrpcCallbackRequest(pendingInvoice));
-            return Ok("success");
-        }
 
         [HttpPost("payretailers")]
         [SwaggerResponse(HttpStatusCode.OK, typeof(string))]

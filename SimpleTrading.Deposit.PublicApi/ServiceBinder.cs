@@ -1,5 +1,3 @@
-using Finance.DirectaIntegration.GrpcContracts;
-using Finance.DirectaIntegration.GrpcContracts.Contracts;
 using Finance.PayopIntegration.GrpcContracts;
 using Finance.PayopIntegration.GrpcContracts.Contracts;
 using Finance.PayRetailersIntegration.GrpcContracts;
@@ -56,11 +54,6 @@ namespace SimpleTrading.Deposit.PublicApi
             );
 
             sr.Register(
-                GrpcChannel.ForAddress(settingsModel.FinanceDirectaIntegrationService)
-                    .CreateGrpcService<IFinanceDirectaIntegrationGrpcService>()
-            );
-
-            sr.Register(
                 GrpcChannel.ForAddress(settingsModel.FinancePayRetailersIntegrationService)
                     .CreateGrpcService<IFinancePayRetailersIntegrationGrpcService>()
             );
@@ -91,8 +84,6 @@ namespace SimpleTrading.Deposit.PublicApi
 
         public static void BindServices(this IServiceRegistrator sr, SettingsModel settingsModel)
         {
-            sr.Register<IProcessIdService<MakeDirectaDepositGrpcResponse>>(
-                new ProcessIdService<MakeDirectaDepositGrpcResponse>());
             sr.Register<IProcessIdService<MakePayRetailersDepositGrpcResponse>>(
                 new ProcessIdService<MakePayRetailersDepositGrpcResponse>());
             sr.Register<IProcessIdService<MakePayopDepositGrpcResponse>>(

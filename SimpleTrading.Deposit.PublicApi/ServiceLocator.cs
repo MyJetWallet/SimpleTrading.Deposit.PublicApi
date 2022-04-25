@@ -1,7 +1,5 @@
 using System;
 using System.Text;
-using Finance.DirectaIntegration.GrpcContracts;
-using Finance.DirectaIntegration.GrpcContracts.Contracts;
 using Finance.PayopIntegration.GrpcContracts;
 using Finance.PayopIntegration.GrpcContracts.Contracts;
 using Finance.PayRetailersIntegration.GrpcContracts;
@@ -36,13 +34,7 @@ namespace SimpleTrading.Deposit.PublicApi
         public static IMyCrmAuditLogGrpcService AuditLogGrpcService { get; private set; }
         public static IFinancePciDssIntegrationGrpcService FinancePciDssIntegrationGrpcService { get; private set; }
         public static IConvertService ConvertService { get; private set; }
-        public static IFinanceDirectaIntegrationGrpcService FinanceDirectaIntegrationGrpcService { get; private set; }
         public static ILogger Logger { get; private set; }
-        public static IProcessIdService<MakeDirectaDepositGrpcResponse> MakeDirectaDepositProcessIdService
-        {
-            get;
-            private set;
-        }
 
         public static IProcessIdService<MakePayRetailersDepositGrpcResponse> MakePayRetailersDepositProcessIdService { get; set; }
 
@@ -65,11 +57,9 @@ namespace SimpleTrading.Deposit.PublicApi
             AuditLogGrpcService = sr.GetService<IMyCrmAuditLogGrpcService>();
             FinancePciDssIntegrationGrpcService = sr.GetService<IFinancePciDssIntegrationGrpcService>();
             ConvertService = sr.GetService<IConvertService>();
-            FinanceDirectaIntegrationGrpcService = sr.GetService<IFinanceDirectaIntegrationGrpcService>();
             FinancePayRetailersIntegrationGrpcService = sr.GetService<IFinancePayRetailersIntegrationGrpcService>();
             FinancePayopIntegrationGrpcService = sr.GetService<IFinancePayopIntegrationGrpcService>();
             Logger = sr.GetService<MyLogger.MyLogger>();
-            MakeDirectaDepositProcessIdService = sr.GetService<IProcessIdService<MakeDirectaDepositGrpcResponse>>();
             MakePayRetailersDepositProcessIdService = sr.GetService<IProcessIdService<MakePayRetailersDepositGrpcResponse>>();
             MakePayopDepositProcessIdService = sr.GetService<IProcessIdService<MakePayopDepositGrpcResponse>>();
             TraderExternalDataGrpcService = sr.GetService<GrpcServiceClient<ITraderExternalDataGrpc>>();

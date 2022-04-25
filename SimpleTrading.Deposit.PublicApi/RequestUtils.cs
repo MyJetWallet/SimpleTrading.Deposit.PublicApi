@@ -6,8 +6,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using DotNetCoreDecorators;
-using Finance.DirectaIntegration.GrpcContracts.Contracts;
-using Finance.DirectaPublic.HttpContracts.Requests;
 using Finance.PayopIntegration.GrpcContracts.Contracts;
 using Finance.PayRetailersIntegration.GrpcContracts.Contracts;
 using Finance.PciDssIntegration.GrpcContracts.Contracts;
@@ -140,23 +138,6 @@ namespace SimpleTrading.Deposit.PublicApi
             };
         }
 
-        public static ProcessDepositRequest ToGrpcCallbackRequest(this GetDirectaDepositGrpcResponse model,
-            DepositModel pendingInvoice)
-        {
-            return new()
-            {
-                TransactionId = pendingInvoice.Id,
-                PsTransactionId = string.IsNullOrEmpty(pendingInvoice.PsTransactionId)
-                    ? model.Deposit.PsTransactionId
-                    : pendingInvoice.PsTransactionId,
-                Comment = "Handled callback on deposit rest service",
-                Author = "System",
-                PaymentInvoiceStatus = model.Deposit.IsSuccess()
-                    ? PaymentInvoiceStatusEnum.Approved
-                    : PaymentInvoiceStatusEnum.Failed
-            };
-        }
-
         public static ProcessDepositRequest ToGrpcCallbackRequest(this PayRetailersCallback callback,
             DepositModel pendingInvoice)
         {
@@ -277,29 +258,6 @@ namespace SimpleTrading.Deposit.PublicApi
                 return sourceAffiliate;
 
             return string.Empty;
-        }
-
-        public static MakeDirectaDepositGrpcRequest ToMakeDirectaDepositGrpcRequest(
-            this CreateDirectaInvoiceRequest request, PersonalDataGrpcResponseContract pd, string brand)
-        {
-            return new()
-            {
-                AccountId = request.AccountId,
-                Country2 = CountryManager.Iso3ToIso2(pd.PersonalData.GetCountry()),
-                Amount = request.Amount,
-                Brand = brand,
-                Currency = "USD",
-                ProcessId = request.ProcessId,
-                TraderId = pd.PersonalData.Id,
-                BirthDate = pd.PersonalData.DateOfBirth?.ToString("yyyyMMdd"),
-                City = pd.PersonalData.City,
-                Email = pd.PersonalData.Email,
-                FirstName = pd.PersonalData.FirstName,
-                LastName = pd.PersonalData.LastName,
-                Phone = pd.PersonalData.Phone,
-                Street = pd.PersonalData.Address,
-                Zipcode = pd.PersonalData.PostalCode
-            };
         }
 
         public static MakePayRetailersDepositGrpcRequest ToMakePayRetailersDepositGrpcRequest(

@@ -1,4 +1,3 @@
-using Finance.DirectaPublic.HttpContracts.Requests;
 using Finance.PciDssPublic.HttpContracts.Requests;
 using FluentValidation.Results;
 using SimpleTrading.Deposit.PublicApi.Contracts;
@@ -24,12 +23,6 @@ namespace SimpleTrading.Deposit.PublicApi.Validation
         public static ValidationResult Validate(this CreatePciDssInvoiceRequest request)
         {
             var validator = new CreatePciDssInvoiceValidator();
-            return validator.Validate(request);
-        }
-
-        public static ValidationResult Validate(this CreateDirectaInvoiceRequest request)
-        {
-            var validator = new CreateDirectaDepositValidator();
             return validator.Validate(request);
         }
 

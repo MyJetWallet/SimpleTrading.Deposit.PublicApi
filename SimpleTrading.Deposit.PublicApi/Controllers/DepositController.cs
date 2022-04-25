@@ -4,9 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Finance.CardValidator;
-using Finance.DirectaIntegration.GrpcContracts.Contracts;
-using Finance.DirectaPublic.HttpContracts.Requests;
-using Finance.DirectaPublic.HttpContracts.Responses;
 using Finance.PayopIntegration.GrpcContracts.Contracts;
 using Finance.PayRetailersIntegration.GrpcContracts.Contracts;
 using Finance.PciDssIntegration.GrpcContracts.Contracts;
@@ -269,92 +266,6 @@ namespace SimpleTrading.Deposit.PublicApi.Controllers
 
             return Ok(DepositResponse<GetSupportedPaymentSystemsResponse>.Success(response));
         }
-
-        [HttpPost("directa/invoice")]
-        [SwaggerResponse(HttpStatusCode.OK, typeof(DepositResponse<CreateDirectaInvoiceResponse>))]
-        [SwaggerResponse(HttpStatusCode.BadRequest, typeof(DepositResponse<CreateDirectaInvoiceBadResponse>))]
-        [SwaggerResponse(HttpStatusCode.Unauthorized, typeof(string))]
-        public async Task<IActionResult> CreateDirectaInvoice([FromBody] CreateDirectaInvoiceRequest request)
-        {
-            ServiceLocator.Logger.Information(
-                "Process CreateDirectaInvoice for request {@request} with headers {@headers}", request,
-                HttpContext.Request.Headers);
-            var validationResult = request.Validate();
-            if (!validationResult.IsValid)
-            {
-                var errors =
-                    validationResult.Errors.Select(item => ErrorEntity.Create(item.PropertyName, item.ErrorMessage));
-                ServiceLocator.Logger.Information("Validation failed with error {@error}", errors);
-                return Ok(DepositResponse<CreateDirectaInvoiceBadResponse>.Create(
-                    CreateDirectaInvoiceBadResponse.Create(errors), DepositRequestStatus.ServerError));
-            }
-
-            if (!request.AccountId.Contains("stl") && !request.AccountId.Contains("mtl"))
-            {
-                ServiceLocator.Logger.Information("Account {account} is not stl or mtl", request.AccountId);
-                return Ok(DepositResponse<CreateDirectaInvoiceResponse>.Create(CreateDirectaInvoiceResponse.Empty,
-                    DepositRequestStatus.ServerError));
-            }
-
-            if (!HttpContext.TryGetTraderId(out var traderId))
-            {
-                ServiceLocator.Logger.Information("TraderId was not found for request {@request}", request);
-                return Unauthorized("Unauthorized");
-            }
-
-            var pd = await ServiceLocator.PersonalDataServiceGrpc.GetByIdAsync(traderId);
-
-            var ip = HttpContext.GetIp();
-            if (!HttpContext.TryGetDepositBrandByRequest(out var depositBrand))
-                depositBrand = Enum.Parse<BrandName>(pd.PersonalData.BrandId, true);
-            if (depositBrand is null)
-            {
-                ServiceLocator.Logger.Error("Brand is null");
-                return Ok(DepositResponse<CreateDirectaInvoiceResponse>.Create(CreateDirectaInvoiceResponse.Empty,
-                    DepositRequestStatus.ServerError));
-            }
-
-            ServiceLocator.Logger.Information("Using {brand} brand", depositBrand.ToString());
-
-            try
-            {
-                DepositResponse<CreateDirectaInvoiceResponse> response = null;
-                var paymentSystem = await ServiceLocator.DepositManagerGrpcService.GetPaymentSystemsAsync(
-                    GetPaymentSystemsRequest.Create(traderId, depositBrand.ToString(), pd.PersonalData.GetCountry()));
-                if (paymentSystem.PaymentSystems?.Any(x =>
-                    x.PaymentSystemId.Contains("directa", StringComparison.OrdinalIgnoreCase)) == true)
-                {
-                    var depositGrpcResponse = await ServiceLocator.MakeDirectaDepositProcessIdService
-                        .GetOrCreateAsync(request.ProcessId + traderId,
-                            () => ServiceLocator.FinanceDirectaIntegrationGrpcService.MakeDepositAsync(
-                                request.ToMakeDirectaDepositGrpcRequest(pd, depositBrand.ToString())));
-
-                    if (depositGrpcResponse.Status == DirectaDepositRequestStatus.Success)
-                        response = DepositResponse<CreateDirectaInvoiceResponse>.Success(
-                            CreateDirectaInvoiceResponse.Create(depositGrpcResponse.RedirectUrl));
-                    else
-                        response = DepositResponse<CreateDirectaInvoiceResponse>.Create(
-                            CreateDirectaInvoiceResponse.Empty, DepositRequestStatus.ServerError);
-                }
-                else
-                {
-                    ServiceLocator.Logger.Warning("CreateDirectaInvoice. paymentSystem not supported {@paymentSystem}",
-                        paymentSystem);
-                    response = DepositResponse<CreateDirectaInvoiceResponse>.Create(CreateDirectaInvoiceResponse.Empty,
-                        DepositRequestStatus.ServerError);
-                }
-
-                ServiceLocator.Logger.Information("CreateDirectaInvoice. Return response {@response}", response);
-                return Ok(response);
-            }
-            catch (Exception e)
-            {
-                ServiceLocator.Logger.Error(e, e.Message);
-                return Ok(DepositResponse<CreateDirectaInvoiceResponse>.Create(CreateDirectaInvoiceResponse.Empty,
-                    DepositRequestStatus.ServerError));
-            }
-        }
-
 
         [HttpPost("payretailers/invoice")]
         [SwaggerResponse(HttpStatusCode.OK, typeof(DepositResponse<CreatePayRetailersInvoiceResponse>))]

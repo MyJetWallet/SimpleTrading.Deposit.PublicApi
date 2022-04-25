@@ -312,58 +312,6 @@ namespace SimpleTrading.Deposit.PublicApi.Controllers
             return targetTransaction;
         }
 
-        [HttpGet("directa")]
-        public async Task<IActionResult> DirectaRedirect([FromQuery] DirectaRedirectRequest request)
-        {
-            using var currentActivity = new Activity("redirect").SetParentId(request.Activity).Start();
-            ServiceLocator.Logger.Information("directa redirect Request {@request}", request);
-            var targetTransaction = await GetTransactionByOrderIdAsync(request.OrderId);
-            if (targetTransaction == null)
-            {
-                if (!HttpContext.TryGetDepositBrandByRequest(out var depositBrand))
-                    throw new Exception("Brand not found");
-                var defaultRedirectUrl = depositBrand.GetStRedirectUrl();
-                ServiceLocator.Logger.Information(
-                    "Transaction is null. {paymentSystem} Request redirect to {redirectLink}", "direct",
-                    defaultRedirectUrl);
-                return Redirect(defaultRedirectUrl);
-            }
-
-            var baseRedirectUrl = targetTransaction.GetRedirectUrl();
-            Url redirectUrl;
-            var status = "failed";
-            if (targetTransaction.Status == PaymentInvoiceStatusEnum.Registered &&
-                request.Status.Contains("success", StringComparison.OrdinalIgnoreCase))
-            {
-                ServiceLocator.Logger.Information(
-                    "Directa Deposit has status {currentStatus}. But request status is {psStatus}",
-                    targetTransaction.Status, request.Status);
-                status = "success";
-            }
-            else
-            {
-                status = targetTransaction.Status == PaymentInvoiceStatusEnum.Approved ? "success" : "failed";
-            }
-
-            redirectUrl = baseRedirectUrl.SetQueryParam("status", status);
-
-            await ServiceLocator.AuditLogGrpcService.SaveAsync(new AuditLogEventGrpcModel
-            {
-                TraderId = targetTransaction.TraderId,
-                ActionId = targetTransaction.Id,
-                Action = "deposit",
-                DateTime = DateTime.UtcNow,
-                Message =
-                    $"directa redirected client on redirect service. Redirection on {redirectUrl} cause status: {targetTransaction.Status}",
-                Author = "system"
-            });
-            ServiceLocator.Logger.Information(
-                "{paymentSystem} 3ds redirected client on redirect service. Redirection on {redirectUrl} cause status: {status}",
-                "directa", redirectUrl, targetTransaction.Status);
-
-            return Redirect(redirectUrl);
-        }
-
         [HttpGet("payretailers")]
         public async Task<IActionResult> PayRetailersRedirect([FromQuery(Name = "orderId")] string orderId, [FromQuery(Name = "status")] string status, [FromQuery] string activityId)
         {

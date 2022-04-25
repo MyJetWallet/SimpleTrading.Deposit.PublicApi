@@ -12,7 +12,6 @@ namespace SimpleTrading.Deposit.PublicApi.Test
             var paymentSystems = new List<PaymentSystem>();
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Bitcoin));
             paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.BankCards));
-            paymentSystems.Add(PaymentSystem.Create(PaymentSystemType.Directa));
             paymentSystems.Sort(PaymentSystem.SortBitcoinLast);
 
             Assert.AreEqual(paymentSystems[0].PaymentSystemType, PaymentSystemType.BankCards);

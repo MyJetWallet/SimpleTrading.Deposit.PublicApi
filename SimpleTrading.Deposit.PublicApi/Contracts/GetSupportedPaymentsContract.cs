@@ -60,7 +60,6 @@ namespace SimpleTrading.Deposit.PublicApi.Contracts
         BankCards,
         Wiretransfer,
         Bitcoin,
-        Directa,
         PayRetailers,
         Payop
     }
