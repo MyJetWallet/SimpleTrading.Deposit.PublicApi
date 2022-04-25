@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
+using NSwag;
 using SimpleTrading.Deposit.Grpc.Contracts;
 using SimpleTrading.Deposit.Postgresql.Models;
 using SimpleTrading.Deposit.PublicApi.Contracts;
@@ -19,8 +21,17 @@ namespace SimpleTrading.Deposit.PublicApi
         {
             services.AddSwaggerDocument(o =>
             {
-                o.Title = "Monfex Deposit Api";
+                o.Title = "Simple Deposit API";
                 o.GenerateEnumMappingDescription = true;
+
+                o.AddSecurity("Bearer", Enumerable.Empty<string>(),
+                    new OpenApiSecurityScheme
+                    {
+                        Type = OpenApiSecuritySchemeType.ApiKey,
+                        Description = "Bearer Token",
+                        In = OpenApiSecurityApiKeyLocation.Header,
+                        Name = "Authorization"
+                    });
             });
         }
 
@@ -99,7 +110,6 @@ namespace SimpleTrading.Deposit.PublicApi
                 "SWIFFY" => PaymentSystemType.Swiffy,
                 "WIRETRANSFER" => PaymentSystemType.Wiretransfer,
                 "DIRECTA" => PaymentSystemType.Directa,
-                "VOLT" => PaymentSystemType.Volt,
                 "PAYRETAILERS" => PaymentSystemType.PayRetailers,
                 "PAYOP_LATAM" => PaymentSystemType.Payop,
                 _ => PaymentSystemType.Undefined
@@ -127,7 +137,6 @@ namespace SimpleTrading.Deposit.PublicApi
                 "SWIFFY" => PaymentSystemType.Swiffy,
                 "WIRETRANSFER" => PaymentSystemType.Wiretransfer,
                 "DIRECTA" => PaymentSystemType.Directa,
-                "VOLT" => PaymentSystemType.Volt,
                 "PAYRETAILERS" => PaymentSystemType.PayRetailers,
                 _ => PaymentSystemType.Undefined
             };
@@ -142,7 +151,6 @@ namespace SimpleTrading.Deposit.PublicApi
                 "SWIFFY" => PaymentSystemType.Swiffy,
                 "WIRETRANSFER" => PaymentSystemType.Wiretransfer,
                 "DIRECTA" => PaymentSystemType.Directa,
-                "VOLT" => PaymentSystemType.Volt,
                 "PAYOP_LATAM" => PaymentSystemType.Payop,
                 _ => PaymentSystemType.Undefined
             };

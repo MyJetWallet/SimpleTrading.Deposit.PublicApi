@@ -7,8 +7,6 @@ using Finance.PayRetailersIntegration.GrpcContracts.Contracts;
 using Finance.PciDssIntegration.GrpcContracts;
 using Finance.SwiffyIntegration.GrpcContracts;
 using Finance.SwiffyIntegration.GrpcContracts.Contracts;
-using Finance.VoltIntegration.GrpcContracts;
-using Finance.VoltIntegration.GrpcContracts.Contracts;
 using Grpc.Net.Client;
 using MyCrm.AuditLog.Grpc;
 using MyDependencies;
@@ -70,11 +68,6 @@ namespace SimpleTrading.Deposit.PublicApi
             );
 
             sr.Register(
-                GrpcChannel.ForAddress(settingsModel.FinanceVoltIntegrationService)
-                    .CreateGrpcService<IFinanceVoltIntegrationGrpcService>()
-            );
-
-            sr.Register(
                 GrpcChannel.ForAddress(settingsModel.FinancePayRetailersIntegrationService)
                     .CreateGrpcService<IFinancePayRetailersIntegrationGrpcService>()
             );
@@ -107,8 +100,6 @@ namespace SimpleTrading.Deposit.PublicApi
         {
             sr.Register<IProcessIdService<MakeSwiffyDepositGrpcResponse>>(
                 new ProcessIdService<MakeSwiffyDepositGrpcResponse>());
-            sr.Register<IProcessIdService<MakeVoltDepositGrpcResponse>>(
-                new ProcessIdService<MakeVoltDepositGrpcResponse>());
             sr.Register<IProcessIdService<MakeDirectaDepositGrpcResponse>>(
                 new ProcessIdService<MakeDirectaDepositGrpcResponse>());
             sr.Register<IProcessIdService<MakePayRetailersDepositGrpcResponse>>(

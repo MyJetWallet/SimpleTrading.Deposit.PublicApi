@@ -15,7 +15,6 @@ using Finance.PciDssPublic.HttpContracts.Responses;
 using Finance.SwiffyIntegration.GrpcContracts.Contracts;
 using Finance.SwiffyPublic.HttpContracts.Requests;
 using Finance.SwiffyPublic.HttpContracts.Responses;
-using Finance.VoltIntegration.GrpcContracts.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using NSwag.Annotations;
@@ -439,90 +438,6 @@ namespace SimpleTrading.Deposit.PublicApi.Controllers
             }
         }
 
-        [HttpPost("volt/invoice")]
-        [SwaggerResponse(HttpStatusCode.OK, typeof(DepositResponse<CreateVoltInvoiceResponse>))]
-        [SwaggerResponse(HttpStatusCode.BadRequest, typeof(DepositResponse<CreateVoltInvoiceBadResponse>))]
-        [SwaggerResponse(HttpStatusCode.Unauthorized, typeof(string))]
-        public async Task<IActionResult> CreateVoltInvoice([FromBody] CreateVoltInvoiceRequest request)
-        {
-            ServiceLocator.Logger.Information(
-                "Process CreateVoltInvoice for request {@request} with headers {@headers}", request,
-                HttpContext.Request.Headers);
-            var validationResult = request.Validate();
-            if (!validationResult.IsValid)
-            {
-                var errors =
-                    validationResult.Errors.Select(item => ErrorEntity.Create(item.PropertyName, item.ErrorMessage));
-                ServiceLocator.Logger.Information("Validation failed with error {@error}", errors);
-                return Ok(DepositResponse<CreateVoltInvoiceBadResponse>.Create(
-                    CreateVoltInvoiceBadResponse.Create(errors), DepositRequestStatus.ServerError));
-            }
-
-            if (!request.AccountId.Contains("stl") && !request.AccountId.Contains("mtl"))
-            {
-                ServiceLocator.Logger.Information("Account {account} is not stl or mtl", request.AccountId);
-                return Ok(DepositResponse<CreateVoltInvoiceResponse>.Create(CreateVoltInvoiceResponse.Empty,
-                    DepositRequestStatus.ServerError));
-            }
-
-            if (!HttpContext.TryGetTraderId(out var traderId))
-            {
-                ServiceLocator.Logger.Information("TraderId was not found for request {@request}", request);
-                return Unauthorized("Unauthorized");
-            }
-
-            var pd = await ServiceLocator.PersonalDataServiceGrpc.GetByIdAsync(traderId);
-
-            var ip = HttpContext.GetIp();
-            if (!HttpContext.TryGetDepositBrandByRequest(out var depositBrand))
-                depositBrand = Enum.Parse<BrandName>(pd.PersonalData.BrandId, true);
-            if (depositBrand is null)
-            {
-                ServiceLocator.Logger.Error("Brand is null");
-                return Ok(DepositResponse<CreateVoltInvoiceResponse>.Create(CreateVoltInvoiceResponse.Empty,
-                    DepositRequestStatus.ServerError));
-            }
-
-            ServiceLocator.Logger.Information("Using {brand} brand", depositBrand.ToString());
-
-            try
-            {
-                DepositResponse<CreateVoltInvoiceResponse> response = null;
-                var paymentSystem = await ServiceLocator.DepositManagerGrpcService.GetPaymentSystemsAsync(
-                    GetPaymentSystemsRequest.Create(traderId, depositBrand.ToString(), pd.PersonalData.GetCountry()));
-                if (paymentSystem.PaymentSystems?.Any(x =>
-                    x.PaymentSystemId.Contains("Volt", StringComparison.OrdinalIgnoreCase)) == true)
-                {
-                    var depositGrpcResponse = await ServiceLocator.MakeVoltDepositProcessIdService
-                        .GetOrCreateAsync(request.ProcessId + traderId,
-                            () => ServiceLocator.FinanceVoltIntegrationGrpcService.MakeDepositAsync(
-                                request.ToMakeVoltDepositGrpcRequest(pd, depositBrand.ToString())));
-
-                    if (depositGrpcResponse.Status == VoltDepositRequestStatus.Success)
-                        response = DepositResponse<CreateVoltInvoiceResponse>.Success(
-                            CreateVoltInvoiceResponse.Create(depositGrpcResponse.RedirectUrl));
-                    else
-                        response = DepositResponse<CreateVoltInvoiceResponse>.Create(
-                            CreateVoltInvoiceResponse.Empty, DepositRequestStatus.ServerError);
-                }
-                else
-                {
-                    ServiceLocator.Logger.Warning("CreateVoltInvoice. paymentSystem not supported {@paymentSystem}",
-                        paymentSystem);
-                    response = DepositResponse<CreateVoltInvoiceResponse>.Create(CreateVoltInvoiceResponse.Empty,
-                        DepositRequestStatus.ServerError);
-                }
-
-                ServiceLocator.Logger.Information("CreateVoltInvoice. Return response {@response}", response);
-                return Ok(response);
-            }
-            catch (Exception e)
-            {
-                ServiceLocator.Logger.Error(e, e.Message);
-                return Ok(DepositResponse<CreateVoltInvoiceResponse>.Create(CreateVoltInvoiceResponse.Empty,
-                    DepositRequestStatus.ServerError));
-            }
-        }
 
         [HttpPost("payretailers/invoice")]
         [SwaggerResponse(HttpStatusCode.OK, typeof(DepositResponse<CreatePayRetailersInvoiceResponse>))]
@@ -775,45 +690,6 @@ namespace SimpleTrading.Deposit.PublicApi.Controllers
     }
 
     public class CreatePayRetailersInvoiceRequest
-    {
-        public string ProcessId { get; set; }
-        public string AccountId { get; set; }
-        public double Amount { get; set; }
-    }
-
-    public class CreateVoltInvoiceResponse
-    {
-        public string RedirectLink { get; set; }
-
-        public CreateVoltInvoiceResponse(string redirectLink)
-        {
-            RedirectLink = redirectLink;
-        }
-
-        public static CreateVoltInvoiceResponse Create(
-            string redirectLink)
-        {
-            return new(redirectLink);
-        }
-
-        public static CreateVoltInvoiceResponse Empty => Create(string.Empty);
-    }
-
-    public class CreateVoltInvoiceBadResponse
-    {
-        public IEnumerable<ErrorEntity> Errors { get; set; }
-
-        public static CreateVoltInvoiceBadResponse Create(
-            IEnumerable<ErrorEntity> errors = null)
-        {
-            return new()
-            {
-                Errors = errors
-            };
-        }
-    }
-
-    public class CreateVoltInvoiceRequest
     {
         public string ProcessId { get; set; }
         public string AccountId { get; set; }

@@ -40,12 +40,6 @@ namespace SimpleTrading.Deposit.PublicApi.Validation
             return validator.Validate(request);
         }
 
-        public static ValidationResult Validate(this CreateVoltInvoiceRequest request)
-        {
-            var validator = new CreateVoltDepositValidator();
-            return validator.Validate(request);
-        }
-
         public static ValidationResult Validate(this CreatePayRetailersInvoiceRequest request)
         {
             var validator = new CreatePayRetailersDepositValidator();
