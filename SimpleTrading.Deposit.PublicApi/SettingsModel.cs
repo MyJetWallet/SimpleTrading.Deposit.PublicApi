@@ -92,9 +92,6 @@ namespace SimpleTrading.Deposit.PublicApi
         [YamlProperty("DepositManagerWebView.AllianzmarketBrandDomains")]
         public string AllianzmarketBrandDomains { get; set; }
 
-        [YamlProperty("DepositManagerWebView.ProcessIdCleanerTimeout")]
-        public string ProcessIdCleanerTimeout { get; set; }
-
         [YamlProperty("DepositManagerWebView.FinanceDirectaIntegrationService")]
         public string FinanceDirectaIntegrationService { get; set; }
 

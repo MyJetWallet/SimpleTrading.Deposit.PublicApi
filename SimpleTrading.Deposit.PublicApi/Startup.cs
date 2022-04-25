@@ -40,7 +40,6 @@ namespace SimpleTrading.Deposit.PublicApi
             _connection = Ioc.BindNoSqlReaders(Settings);
 
             ServiceLocator.Init(Ioc);
-            services.AddHostedService<ProcessIdCleanerJob>();
             services.AddControllers().AddNewtonsoftJson();
             ServiceLocator.BindKeys();
 
