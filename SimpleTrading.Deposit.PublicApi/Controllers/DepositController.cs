@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Finance.CardValidator;
-using Finance.PayopIntegration.GrpcContracts.Contracts;
 using Finance.PciDssIntegration.GrpcContracts.Contracts;
 using Finance.PciDssPublic.HttpContracts.Requests;
 using Finance.PciDssPublic.HttpContracts.Responses;
@@ -265,92 +264,6 @@ namespace SimpleTrading.Deposit.PublicApi.Controllers
 
             return Ok(DepositResponse<GetSupportedPaymentSystemsResponse>.Success(response));
         }
-
-        [HttpPost("payop/invoice")]
-        [SwaggerResponse(HttpStatusCode.OK, typeof(DepositResponse<CreatePayopInvoiceResponse>))]
-        [SwaggerResponse(HttpStatusCode.BadRequest, typeof(DepositResponse<CreatePayopInvoiceBadResponse>))]
-        [SwaggerResponse(HttpStatusCode.Unauthorized, typeof(string))]
-        public async Task<IActionResult> CreatePayopInvoice([FromBody] CreatePayopInvoiceRequest request)
-        {
-            ServiceLocator.Logger.Information(
-                "Process CreatePayopInvoice for request {@request} with headers {@headers}", request,
-                HttpContext.Request.Headers);
-            var validationResult = request.Validate();
-            if (!validationResult.IsValid)
-            {
-                var errors =
-                    validationResult.Errors.Select(item => ErrorEntity.Create(item.PropertyName, item.ErrorMessage));
-                ServiceLocator.Logger.Information("Validation failed with error {@error}", errors);
-                return Ok(DepositResponse<CreatePayopInvoiceBadResponse>.Create(
-                    CreatePayopInvoiceBadResponse.Create(errors), DepositRequestStatus.ServerError));
-            }
-
-            if (!request.AccountId.Contains("stl") && !request.AccountId.Contains("mtl"))
-            {
-                ServiceLocator.Logger.Information("Account {account} is not stl or mtl", request.AccountId);
-                return Ok(DepositResponse<CreatePayopInvoiceResponse>.Create(CreatePayopInvoiceResponse.Empty,
-                    DepositRequestStatus.ServerError));
-            }
-
-            if (!HttpContext.TryGetTraderId(out var traderId))
-            {
-                ServiceLocator.Logger.Information("TraderId was not found for request {@request}", request);
-                return Unauthorized("Unauthorized");
-            }
-
-            var pd = await ServiceLocator.PersonalDataServiceGrpc.GetByIdAsync(traderId);
-
-            var ip = HttpContext.GetIp();
-            if (!HttpContext.TryGetDepositBrandByRequest(out var depositBrand))
-                depositBrand = Enum.Parse<BrandName>(pd.PersonalData.BrandId, true);
-            if (depositBrand is null)
-            {
-                ServiceLocator.Logger.Error("Brand is null");
-                return Ok(DepositResponse<CreatePayopInvoiceResponse>.Create(CreatePayopInvoiceResponse.Empty,
-                    DepositRequestStatus.ServerError));
-            }
-
-            ServiceLocator.Logger.Information("Using {brand} brand", depositBrand.ToString());
-
-            try
-            {
-                DepositResponse<CreatePayopInvoiceResponse> response = null;
-                var paymentSystem = await ServiceLocator.DepositManagerGrpcService.GetPaymentSystemsAsync(
-                    GetPaymentSystemsRequest.Create(traderId, depositBrand.ToString(), pd.PersonalData.GetCountry()));
-                if (paymentSystem.PaymentSystems?.Any(x =>
-                    x.PaymentSystemId.Contains("Payop", StringComparison.OrdinalIgnoreCase)) == true)
-                {
-                    var depositGrpcResponse = await ServiceLocator.MakePayopDepositProcessIdService
-                        .GetOrCreateAsync(request.ProcessId + traderId,
-                            () => ServiceLocator.FinancePayopIntegrationGrpcService.MakeDepositAsync(
-                                request.ToMakePayopDepositGrpcRequest(pd, depositBrand.ToString())));
-
-                    if (depositGrpcResponse.Status == PayopDepositRequestStatus.Success)
-                        response = DepositResponse<CreatePayopInvoiceResponse>.Success(
-                            CreatePayopInvoiceResponse.Create(depositGrpcResponse.RedirectUrl));
-                    else
-                        response = DepositResponse<CreatePayopInvoiceResponse>.Create(
-                            CreatePayopInvoiceResponse.Empty, DepositRequestStatus.ServerError);
-                }
-                else
-                {
-                    ServiceLocator.Logger.Warning("CreatePayopInvoice. paymentSystem not supported {@paymentSystem}",
-                        paymentSystem);
-                    response = DepositResponse<CreatePayopInvoiceResponse>.Create(CreatePayopInvoiceResponse.Empty,
-                        DepositRequestStatus.ServerError);
-                }
-
-                ServiceLocator.Logger.Information("CreatePayopInvoice. Return response {@response}", response);
-                return Ok(response);
-            }
-            catch (Exception e)
-            {
-                ServiceLocator.Logger.Error(e, e.Message);
-                return Ok(DepositResponse<CreatePayopInvoiceResponse>.Create(CreatePayopInvoiceResponse.Empty,
-                    DepositRequestStatus.ServerError));
-            }
-        }
-
         private static async Task<List<PaymentSystem>> NotSortedBankAndBitcoinAsync(string traderId, GetPaymentSystemsResponse result)
         {
             var notSortedBankAndBitcoin = result.PaymentSystems?
@@ -397,44 +310,5 @@ namespace SimpleTrading.Deposit.PublicApi.Controllers
             notSortedBankAndBitcoin.Sort(PaymentSystem.SortBitcoinLast);
             return notSortedBankAndBitcoin;
         }
-    }
-
-    public class CreatePayopInvoiceResponse
-    {
-        public string RedirectLink { get; set; }
-
-        public CreatePayopInvoiceResponse(string redirectLink)
-        {
-            RedirectLink = redirectLink;
-        }
-
-        public static CreatePayopInvoiceResponse Create(
-            string redirectLink)
-        {
-            return new(redirectLink);
-        }
-
-        public static CreatePayopInvoiceResponse Empty => Create(string.Empty);
-    }
-
-    public class CreatePayopInvoiceBadResponse
-    {
-        public IEnumerable<ErrorEntity> Errors { get; set; }
-
-        public static CreatePayopInvoiceBadResponse Create(
-            IEnumerable<ErrorEntity> errors = null)
-        {
-            return new()
-            {
-                Errors = errors
-            };
-        }
-    }
-
-    public class CreatePayopInvoiceRequest
-    {
-        public string ProcessId { get; set; }
-        public string AccountId { get; set; }
-        public double Amount { get; set; }
     }
 }

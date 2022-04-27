@@ -25,11 +25,5 @@ namespace SimpleTrading.Deposit.PublicApi.Validation
             var validator = new CreatePciDssInvoiceValidator();
             return validator.Validate(request);
         }
-
-        public static ValidationResult Validate(this CreatePayopInvoiceRequest request)
-        {
-            var validator = new CreatePayopDepositValidator();
-            return validator.Validate(request);
-        }
     }
 }

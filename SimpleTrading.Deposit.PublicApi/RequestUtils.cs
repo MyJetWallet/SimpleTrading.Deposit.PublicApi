@@ -6,7 +6,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using DotNetCoreDecorators;
-using Finance.PayopIntegration.GrpcContracts.Contracts;
 using Finance.PciDssIntegration.GrpcContracts.Contracts;
 using Finance.PciDssPublic.HttpContracts.Requests;
 using Microsoft.AspNetCore.Http;
@@ -108,21 +107,6 @@ namespace SimpleTrading.Deposit.PublicApi
                     : PaymentInvoiceStatusEnum.Failed
             };
         }
-
-        public static ProcessDepositRequest ToGrpcCallbackRequest(this PayopCallbackRequest model, DepositModel pendingInvoice)
-        {
-            return new()
-            {
-                TransactionId = pendingInvoice.Id,
-                PsTransactionId = pendingInvoice.PsTransactionId,
-                Comment = "Handled callback on deposit rest service",
-                Author = "System",
-                PaymentInvoiceStatus = model.Transaction.IsSuccess
-                    ? PaymentInvoiceStatusEnum.Approved
-                    : PaymentInvoiceStatusEnum.Failed
-            };
-        }
-
         public static ProcessDepositRequest ToGrpcCallbackRequest(this RealDepositsCallbackRequest model, DepositModel pendingInvoice)
         {
             return new ProcessDepositRequest
@@ -240,22 +224,6 @@ namespace SimpleTrading.Deposit.PublicApi
                 return sourceAffiliate;
 
             return string.Empty;
-        }
-
-        public static MakePayopDepositGrpcRequest ToMakePayopDepositGrpcRequest(
-            this CreatePayopInvoiceRequest request, PersonalDataGrpcResponseContract pd, string brand)
-        {
-            return new()
-            {
-                AccountId = request.AccountId,
-                Amount = request.Amount,
-                Brand = brand,
-                Currency = "USD",
-                TraderId = pd.PersonalData.Id,
-                Email = pd.PersonalData.Email,
-                FullName = string.Join(' ', pd.PersonalData.FirstName, pd.PersonalData.LastName),
-                PhoneNumber = pd.PersonalData.Phone
-            };
         }
 
         public static bool TryGetTraderId(this HttpContext ctx, out string traderId)

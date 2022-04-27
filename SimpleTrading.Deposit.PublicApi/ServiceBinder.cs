@@ -1,5 +1,3 @@
-using Finance.PayopIntegration.GrpcContracts;
-using Finance.PayopIntegration.GrpcContracts.Contracts;
 using Finance.PciDssIntegration.GrpcContracts;
 using Grpc.Net.Client;
 using MyCrm.AuditLog.Grpc;
@@ -52,11 +50,6 @@ namespace SimpleTrading.Deposit.PublicApi
             );
 
             sr.Register(
-                GrpcChannel.ForAddress(settingsModel.FinancePayopIntegrationService)
-                    .CreateGrpcService<IFinancePayopIntegrationGrpcService>()
-            );
-
-            sr.Register(
                 new GrpcServiceClient<ITraderExternalDataGrpc>(
                     () => settingsModel.TraderExternalDataGrpcServiceUrl));
         }
@@ -77,8 +70,8 @@ namespace SimpleTrading.Deposit.PublicApi
 
         public static void BindServices(this IServiceRegistrator sr, SettingsModel settingsModel)
         {
-            sr.Register<IProcessIdService<MakePayopDepositGrpcResponse>>(
-                new ProcessIdService<MakePayopDepositGrpcResponse>());
+            //sr.Register<IProcessIdService<MakePayopDepositGrpcResponse>>(
+            //    new ProcessIdService<MakePayopDepositGrpcResponse>());
         }
         
         public static MyNoSqlTcpClient BindNoSqlReaders(this IServiceRegistrator sr, SettingsModel settingsModel)

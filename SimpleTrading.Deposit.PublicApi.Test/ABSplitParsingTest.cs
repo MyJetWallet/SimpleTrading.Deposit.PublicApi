@@ -26,16 +26,16 @@ namespace SimpleTrading.Deposit.PublicApi.Test
         }
 
 
-        [TestCase("WBonus_30_vs_30_20_10_Monfex@GroupA@Payop|WBonus_30_vs_30_20_10_Monfex@GroupB@Payop", "Payop", "Payop")]
-        [TestCase("WBonus_30_vs_30_20_10_Monfex@GroupA@Payop|WBonus_30_vs_30_20_10_Monfex@GroupB@Payop", "Payop", "Payop")]
+        [TestCase("WBonus_30_vs_30_20_10_Monfex@GroupA@BankCards|WBonus_30_vs_30_20_10_Monfex@GroupB@BankCards", "BankCards", "BankCards")]
+        [TestCase("WBonus_30_vs_30_20_10_Monfex@GroupA@BankCards|WBonus_30_vs_30_20_10_Monfex@GroupB@BankCards", "BankCards", "BankCards")]
         public void GetGroupSettings(string settings, string groupA, string groupB)
         {
             var gA = settings
-                .GetGroupPaymentSystemTypeOrDefault(ABSplitGroupType.GroupA, PaymentSystemType.Payop);
+                .GetGroupPaymentSystemTypeOrDefault(ABSplitGroupType.GroupA, PaymentSystemType.BankCards);
             var gAType = groupA.ToEnum<PaymentSystemType>();
 
             var gB = settings
-                .GetGroupPaymentSystemTypeOrDefault(ABSplitGroupType.GroupB, PaymentSystemType.Payop);
+                .GetGroupPaymentSystemTypeOrDefault(ABSplitGroupType.GroupB, PaymentSystemType.BankCards);
             var gBType = groupB.ToEnum<PaymentSystemType>();
 
             Assert.AreEqual(gA.PaymentType, gAType);

@@ -1,7 +1,5 @@
 using System;
 using System.Text;
-using Finance.PayopIntegration.GrpcContracts;
-using Finance.PayopIntegration.GrpcContracts.Contracts;
 using Finance.PciDssIntegration.GrpcContracts;
 using MyCrm.AuditLog.Grpc;
 using MyDependencies;
@@ -33,11 +31,6 @@ namespace SimpleTrading.Deposit.PublicApi
         public static IFinancePciDssIntegrationGrpcService FinancePciDssIntegrationGrpcService { get; private set; }
         public static IConvertService ConvertService { get; private set; }
         public static ILogger Logger { get; private set; }
-
-        public static IFinancePayopIntegrationGrpcService FinancePayopIntegrationGrpcService { get; set; }
-
-        public static IProcessIdService<MakePayopDepositGrpcResponse> MakePayopDepositProcessIdService { get; set; }
-
         public static GrpcServiceClient<ITraderExternalDataGrpc> TraderExternalDataGrpcService { get; private set; }
         public static IMyNoSQLReaderLite<DepositRestrictionNoSqlEntity> DepositRestrictionsReader { get; set; }
 
@@ -51,9 +44,7 @@ namespace SimpleTrading.Deposit.PublicApi
             AuditLogGrpcService = sr.GetService<IMyCrmAuditLogGrpcService>();
             FinancePciDssIntegrationGrpcService = sr.GetService<IFinancePciDssIntegrationGrpcService>();
             ConvertService = sr.GetService<IConvertService>();
-            FinancePayopIntegrationGrpcService = sr.GetService<IFinancePayopIntegrationGrpcService>();
             Logger = sr.GetService<MyLogger.MyLogger>();
-            MakePayopDepositProcessIdService = sr.GetService<IProcessIdService<MakePayopDepositGrpcResponse>>();
             TraderExternalDataGrpcService = sr.GetService<GrpcServiceClient<ITraderExternalDataGrpc>>();
             DepositRestrictionsReader = sr.GetService<IMyNoSQLReaderLite<DepositRestrictionNoSqlEntity>>();
         }

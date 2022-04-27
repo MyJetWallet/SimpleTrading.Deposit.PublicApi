@@ -59,7 +59,6 @@ namespace SimpleTrading.Deposit.PublicApi.Contracts
         Undefined = 0,
         BankCards,
         Wiretransfer,
-        Bitcoin,
-        Payop
+        Bitcoin
     }
 }
