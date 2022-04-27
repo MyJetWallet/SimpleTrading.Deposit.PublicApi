@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using DotNetCoreDecorators;
 using Finance.PayopIntegration.GrpcContracts.Contracts;
-using Finance.PayRetailersIntegration.GrpcContracts.Contracts;
 using Finance.PciDssIntegration.GrpcContracts.Contracts;
 using Finance.PciDssPublic.HttpContracts.Requests;
 using Microsoft.AspNetCore.Http;
@@ -138,23 +137,6 @@ namespace SimpleTrading.Deposit.PublicApi
             };
         }
 
-        public static ProcessDepositRequest ToGrpcCallbackRequest(this PayRetailersCallback callback,
-            DepositModel pendingInvoice)
-        {
-            return new()
-            {
-                TransactionId = pendingInvoice.Id,
-                PsTransactionId = string.IsNullOrEmpty(pendingInvoice.PsTransactionId)
-                    ? callback.Uid
-                    : pendingInvoice.PsTransactionId,
-                Comment = "Handled callback on deposit rest service",
-                Author = "System",
-                PaymentInvoiceStatus = callback.IsSuccess
-                    ? PaymentInvoiceStatusEnum.Approved
-                    : PaymentInvoiceStatusEnum.Failed
-            };
-        }
-
         public static ProcessDepositRequest ToGrpcCallbackRequest(this CertusFinanceCallback callback,
             DepositModel pendingInvoice)
         {
@@ -258,29 +240,6 @@ namespace SimpleTrading.Deposit.PublicApi
                 return sourceAffiliate;
 
             return string.Empty;
-        }
-
-        public static MakePayRetailersDepositGrpcRequest ToMakePayRetailersDepositGrpcRequest(
-            this CreatePayRetailersInvoiceRequest request, PersonalDataGrpcResponseContract pd, string ip, string brand)
-        {
-            return new()
-            {
-                AccountId = request.AccountId,
-                Amount = request.Amount,
-                Brand = brand,
-                Currency = "USD",
-                TraderId = pd.PersonalData.Id,
-                Email = pd.PersonalData.Email,
-                Address = pd.PersonalData.Address,
-                City = pd.PersonalData.City,
-                FirstName = pd.PersonalData.FirstName,
-                LastName = pd.PersonalData.LastName,
-                Ip = ip,
-                Country2 = CountryManager.Iso3ToIso2(pd.PersonalData.GetCountry()),
-                Zip = pd.PersonalData.PostalCode,
-                ProcessId = request.ProcessId,
-                PhoneNumber = pd.PersonalData.Phone
-            };
         }
 
         public static MakePayopDepositGrpcRequest ToMakePayopDepositGrpcRequest(

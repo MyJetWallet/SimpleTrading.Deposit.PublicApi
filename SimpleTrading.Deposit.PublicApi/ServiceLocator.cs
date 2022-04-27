@@ -2,8 +2,6 @@ using System;
 using System.Text;
 using Finance.PayopIntegration.GrpcContracts;
 using Finance.PayopIntegration.GrpcContracts.Contracts;
-using Finance.PayRetailersIntegration.GrpcContracts;
-using Finance.PayRetailersIntegration.GrpcContracts.Contracts;
 using Finance.PciDssIntegration.GrpcContracts;
 using MyCrm.AuditLog.Grpc;
 using MyDependencies;
@@ -36,10 +34,6 @@ namespace SimpleTrading.Deposit.PublicApi
         public static IConvertService ConvertService { get; private set; }
         public static ILogger Logger { get; private set; }
 
-        public static IProcessIdService<MakePayRetailersDepositGrpcResponse> MakePayRetailersDepositProcessIdService { get; set; }
-
-        public static IFinancePayRetailersIntegrationGrpcService FinancePayRetailersIntegrationGrpcService { get; set; }
-
         public static IFinancePayopIntegrationGrpcService FinancePayopIntegrationGrpcService { get; set; }
 
         public static IProcessIdService<MakePayopDepositGrpcResponse> MakePayopDepositProcessIdService { get; set; }
@@ -57,10 +51,8 @@ namespace SimpleTrading.Deposit.PublicApi
             AuditLogGrpcService = sr.GetService<IMyCrmAuditLogGrpcService>();
             FinancePciDssIntegrationGrpcService = sr.GetService<IFinancePciDssIntegrationGrpcService>();
             ConvertService = sr.GetService<IConvertService>();
-            FinancePayRetailersIntegrationGrpcService = sr.GetService<IFinancePayRetailersIntegrationGrpcService>();
             FinancePayopIntegrationGrpcService = sr.GetService<IFinancePayopIntegrationGrpcService>();
             Logger = sr.GetService<MyLogger.MyLogger>();
-            MakePayRetailersDepositProcessIdService = sr.GetService<IProcessIdService<MakePayRetailersDepositGrpcResponse>>();
             MakePayopDepositProcessIdService = sr.GetService<IProcessIdService<MakePayopDepositGrpcResponse>>();
             TraderExternalDataGrpcService = sr.GetService<GrpcServiceClient<ITraderExternalDataGrpc>>();
             DepositRestrictionsReader = sr.GetService<IMyNoSQLReaderLite<DepositRestrictionNoSqlEntity>>();

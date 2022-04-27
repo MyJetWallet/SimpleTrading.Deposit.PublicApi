@@ -261,56 +261,6 @@ namespace SimpleTrading.Deposit.PublicApi.Controllers
             return Ok("success");
         }
 
-
-        [HttpPost("payretailers")]
-        [SwaggerResponse(HttpStatusCode.OK, typeof(string))]
-        public async Task<IActionResult> HandlePayRetailersCallback([FromBody] PayRetailersCallback request,
-            [FromQuery] string activityId)
-        {
-            using var currentActivity = string.IsNullOrEmpty(activityId)
-                ? Activity.Current
-                : new Activity("callback").SetParentId(activityId).Start();
-            ServiceLocator.Logger.Information(
-                "Got PayRetailers callback. Callback status: {status}. Transaction Id: {trId}. callback {@callback}",
-                request.Status, request.TrackingId, request);
-
-            //TODO Go to PayRetailers and get transaction
-
-            var pendingInvoice = await ServiceLocator.DepositRepository.FindById(request.TrackingId);
-            if (string.IsNullOrEmpty(pendingInvoice?.PaymentProvider) ||
-                !pendingInvoice.PaymentProvider.Contains("PayRetailers", StringComparison.OrdinalIgnoreCase))
-            {
-                ServiceLocator.Logger.Information(
-                    "PayRetailers callback Transaction PaymentProvider {paymentProvider} did not match or null by {InvoiceId}. Transaction {@Transaction}. Request {@request}",
-                    pendingInvoice?.PaymentProvider, request.TrackingId, pendingInvoice, request);
-                return Ok("success");
-            }
-
-            if (request.IsPending)
-            {
-                ServiceLocator.Logger.Information(
-                    "PayRetailers callback Transaction PaymentProvider {paymentProvider} is pending. Skip processing.",
-                    pendingInvoice?.PaymentProvider);
-                return Ok("success");
-            }
-
-            await ServiceLocator.AuditLogGrpcService.SaveAsync(new AuditLogEventGrpcModel
-            {
-                TraderId = pendingInvoice.TraderId,
-                Action = "deposit",
-                ActionId = pendingInvoice.Id,
-                DateTime = DateTime.UtcNow,
-                Message =
-                    $"Got callback. Ps status: ${request.Status}. Ps message: {request.Message}",
-                Author = "system"
-            });
-
-            await ServiceLocator.DepositManagerGrpcService.ProcessDepositAsync(
-                request.ToGrpcCallbackRequest(pendingInvoice));
-            return Ok("success");
-        }
-
-
         [HttpGet("xpate")]
         public async Task<IActionResult> HandleXpateCallback([FromQuery(Name = "client_orderid")] string clientOrderId,
             [FromQuery(Name = "status")] string status, [FromQuery(Name = "error_message")] string errorMessage,

@@ -1,7 +1,5 @@
 using Finance.PayopIntegration.GrpcContracts;
 using Finance.PayopIntegration.GrpcContracts.Contracts;
-using Finance.PayRetailersIntegration.GrpcContracts;
-using Finance.PayRetailersIntegration.GrpcContracts.Contracts;
 using Finance.PciDssIntegration.GrpcContracts;
 using Grpc.Net.Client;
 using MyCrm.AuditLog.Grpc;
@@ -54,11 +52,6 @@ namespace SimpleTrading.Deposit.PublicApi
             );
 
             sr.Register(
-                GrpcChannel.ForAddress(settingsModel.FinancePayRetailersIntegrationService)
-                    .CreateGrpcService<IFinancePayRetailersIntegrationGrpcService>()
-            );
-
-            sr.Register(
                 GrpcChannel.ForAddress(settingsModel.FinancePayopIntegrationService)
                     .CreateGrpcService<IFinancePayopIntegrationGrpcService>()
             );
@@ -84,8 +77,6 @@ namespace SimpleTrading.Deposit.PublicApi
 
         public static void BindServices(this IServiceRegistrator sr, SettingsModel settingsModel)
         {
-            sr.Register<IProcessIdService<MakePayRetailersDepositGrpcResponse>>(
-                new ProcessIdService<MakePayRetailersDepositGrpcResponse>());
             sr.Register<IProcessIdService<MakePayopDepositGrpcResponse>>(
                 new ProcessIdService<MakePayopDepositGrpcResponse>());
         }

@@ -108,7 +108,6 @@ namespace SimpleTrading.Deposit.PublicApi
                 "BANK_CARDS" => PaymentSystemType.BankCards,
                 "BITCOIN" => PaymentSystemType.Bitcoin,
                 "WIRETRANSFER" => PaymentSystemType.Wiretransfer,
-                "PAYRETAILERS" => PaymentSystemType.PayRetailers,
                 "PAYOP_LATAM" => PaymentSystemType.Payop,
                 _ => PaymentSystemType.Undefined
             };
@@ -133,7 +132,6 @@ namespace SimpleTrading.Deposit.PublicApi
                 "BANK_CARDS" => PaymentSystemType.BankCards,
                 "BITCOIN" => PaymentSystemType.Bitcoin,
                 "WIRETRANSFER" => PaymentSystemType.Wiretransfer,
-                "PAYRETAILERS" => PaymentSystemType.PayRetailers,
                 _ => PaymentSystemType.Undefined
             };
         }

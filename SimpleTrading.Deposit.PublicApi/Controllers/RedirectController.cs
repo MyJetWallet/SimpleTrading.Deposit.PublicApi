@@ -18,8 +18,6 @@ namespace SimpleTrading.Deposit.PublicApi.Controllers
     [Route("v1/deposit/redirect")]
     public class RedirectController : Controller
     {
-        private const string PayRetailers = "PayRetailers";
-
         [HttpGet("texcent")]
         public async Task<IActionResult> TexcentRedirect([FromQuery] string transaction_id, [FromQuery] string status,
             [FromQuery] string orderId, [FromQuery] string activityId)
@@ -310,53 +308,6 @@ namespace SimpleTrading.Deposit.PublicApi.Controllers
             }
 
             return targetTransaction;
-        }
-
-        [HttpGet("payretailers")]
-        public async Task<IActionResult> PayRetailersRedirect([FromQuery(Name = "orderId")] string orderId, [FromQuery(Name = "status")] string status, [FromQuery] string activityId)
-        {
-            using var currentActivity = string.IsNullOrEmpty(activityId)
-                ? Activity.Current
-                : new Activity("redirect").SetParentId(activityId).Start();
-            ServiceLocator.Logger.Information(
-                "PayRetailersRedirect orderId {orderId}, status {status}, activityId {activityId}",
-                orderId, status, activityId);
-            var targetTransaction = await GetTransactionByOrderIdAsync(orderId, 5);
-
-            if (targetTransaction == null)
-            {
-                if (!HttpContext.TryGetDepositBrandByRequest(out var depositBrand))
-                    throw new Exception("Brand not found");
-                var defaultRedirectUrl = depositBrand.GetStRedirectUrl();
-                ServiceLocator.Logger.Information(
-                    "Transaction is null. {paymentSystem} Request redirect to {redirectLink}", PayRetailers,
-                    defaultRedirectUrl);
-                return Redirect(defaultRedirectUrl);
-            }
-
-            var redirectUrl = targetTransaction.GetRedirectUrl();
-            if (targetTransaction.Status == PaymentInvoiceStatusEnum.Approved)
-                redirectUrl = redirectUrl.SetQueryParam("status", "success");
-            else if (targetTransaction.Status == PaymentInvoiceStatusEnum.Registered)
-                redirectUrl = redirectUrl.SetQueryParam("status", "pending");
-            else
-                redirectUrl = redirectUrl.SetQueryParam("status", "failed");
-
-            await ServiceLocator.AuditLogGrpcService.SaveAsync(new AuditLogEventGrpcModel
-            {
-                TraderId = targetTransaction.TraderId,
-                ActionId = targetTransaction.Id,
-                Action = "deposit",
-                DateTime = DateTime.UtcNow,
-                Message =
-                    $"{PayRetailers} redirected client on redirect service. Redirection on {redirectUrl} cause status: {targetTransaction.Status}",
-                Author = "system"
-            });
-            ServiceLocator.Logger.Information(
-                "{paymentSystem} redirected client on redirect service. Redirection on {redirectUrl} cause status: {status}",
-                PayRetailers, redirectUrl, targetTransaction.Status);
-
-            return Redirect(redirectUrl);
         }
 
         [HttpGet("certusfinance")]
