@@ -9,8 +9,8 @@
       <PackageReference Include="Finance.CardValidator" Version="1.0.0" />
       <PackageReference Include="Finance.PciDssIntegration.GrpcContracts" Version="2.0.0" />
       <PackageReference Include="Finance.PciDssPublic.HttpContracts" Version="1.0.0" />
-      <PackageReference Include="FluentValidation" Version="11.0.2" />
-      <PackageReference Include="FluentValidation.AspNetCore" Version="11.0.2" />
+      <PackageReference Include="FluentValidation" Version="11.0.3" />
+      <PackageReference Include="FluentValidation.AspNetCore" Version="11.0.3" />
       <PackageReference Include="Grpc.Net.Client" Version="2.46.0" />
       <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
       <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.5" />
