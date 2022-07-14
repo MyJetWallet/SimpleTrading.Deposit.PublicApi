@@ -7,7 +7,7 @@
     <ItemGroup>
       <PackageReference Include="DotNetCoreDecorators" Version="1.0.21" />
       <PackageReference Include="Finance.CardValidator" Version="1.0.0" />
-      <PackageReference Include="Finance.PciDssIntegration.GrpcContracts" Version="2.0.0" />
+      <PackageReference Include="Finance.PciDssIntegration.GrpcContracts" Version="2.0.2" />
       <PackageReference Include="Finance.PciDssPublic.HttpContracts" Version="1.0.0" />
       <PackageReference Include="FluentValidation" Version="11.1.0" />
       <PackageReference Include="FluentValidation.AspNetCore" Version="11.1.2" />
@@ -26,7 +26,7 @@
       <PackageReference Include="SimpleTrading.Common.MyNoSql" Version="1.0.46" />
       <PackageReference Include="SimpleTrading.ConvertService.Grpc" Version="1.0.3" />
       <PackageReference Include="SimpleTrading.Deposit.Grpc" Version="1.2.18" />
-      <PackageReference Include="SimpleTrading.Deposit.Postgresql" Version="1.0.15" />
+      <PackageReference Include="SimpleTrading.Deposit.Postgresql" Version="1.0.16" />
       <PackageReference Include="SimpleTrading.GrpcTemplate" Version="1.0.4" />
       <PackageReference Include="SimpleTrading.MyLogger" Version="2.0.0" />
       <PackageReference Include="SimpleTrading.Payments.Abstractions" Version="1.0.2" />
